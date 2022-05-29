@@ -28,8 +28,51 @@
  *   'NULL'      => false 
  */
 function findStringInSnakingPuzzle(puzzle, searchStr) {
-    throw new Error('Not implemented');
+    function IsInPosArr(posArr, pos) {
+        for (let arrPos of posArr) {
+            if ((arrPos[0] == pos[0]) && (arrPos[1] == pos[1])) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function IsHere(puzzle, word, curLetterNum, curPos) {
+        if (curLetterNum == word.length - 1) {
+            if ((puzzle[curPos[0]][curPos[1]] == word[curLetterNum]) && (!IsInPosArr(wasInRow, [curPos[0], curPos[1]]))) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if ((puzzle[curPos[0]][curPos[1]] == word[curLetterNum]) && (!IsInPosArr(wasInRow, [curPos[0], curPos[1]]))) {
+                let result = false;
+                wasInRow.push([curPos[0], curPos[1]]);
+                if (curPos[0] > 0)
+                    result = result || IsHere(puzzle, word, curLetterNum + 1, [curPos[0] - 1, curPos[1]]);
+                if (curPos[1] < puzzle[curPos[0]].length - 1)
+                    result = result || IsHere(puzzle, word, curLetterNum + 1, [curPos[0], curPos[1] + 1]);
+                if (curPos[0] < puzzle.length - 1)
+                    result = result || IsHere(puzzle, word, curLetterNum + 1, [curPos[0] + 1, curPos[1]]);
+                if (curPos[1] > 0)
+                    result = result || IsHere(puzzle, word, curLetterNum + 1, [curPos[0], curPos[1] - 1]);
+                wasInRow.pop();
+                return result;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    let result = false;
+    let wasInRow = new Array();
+    for (let i = 0; i < puzzle.length; i++) {
+        for (let j = 0; j < puzzle[i].length; j++) {
+            result = result || IsHere(puzzle, searchStr, 0, [i, j]);
+        }
+    }
+    return result;
 }
+
 
 
 /**
@@ -45,7 +88,29 @@ function findStringInSnakingPuzzle(puzzle, searchStr) {
  *    'abc' => 'abc','acb','bac','bca','cab','cba'
  */
 function* getPermutations(chars) {
-    throw new Error('Not implemented');
+    function permute(chars) {
+        if (chars.length == 1) {
+            return chars;
+        } else if (chars.length == 2) {
+            return [chars, chars[1] + chars[0]];
+        } else {
+            const permutations = [];
+            chars.split('').forEach(
+                function (char, index, array) {
+                    let sub = [].concat(array);
+                    sub.splice(index, 1);
+                    permute(sub.join('')).forEach(
+                        function (permutation) {
+                            permutations.push(char + permutation);
+                        });
+                });
+            return permutations;
+        }
+    }
+
+    for (let permutation of permute(chars)) {
+        yield permutation;
+    }
 }
 
 
@@ -65,7 +130,11 @@ function* getPermutations(chars) {
  *    [ 1, 6, 5, 10, 8, 7 ] => 18  (buy at 1,6,5 and sell all at 10)
  */
 function getMostProfitFromStockQuotes(quotes) {
-    throw new Error('Not implemented');
+    let sum = 0;
+    quotes.forEach((value, index) => {
+        sum += quotes.slice(index).sort((a, b) => b - a)[0] - value;
+    });
+    return sum;
 }
 
 
@@ -92,11 +161,30 @@ function UrlShortener() {
 UrlShortener.prototype = {
 
     encode: function(url) {
-        throw new Error('Not implemented');
+        let result = new String();
+        let char1, char2, newChar;
+        for (let i = 0; i + 1 < url.length; i += 2) {
+            char1 = url.charCodeAt(i);
+            char2 = url.charCodeAt(i + 1);
+            newChar = (char1 << 8) + char2;
+            result += String.fromCharCode(newChar);
+        }
+        if (url.length % 2 == 1) {
+            result += String.fromCharCode(url.charCodeAt(url.length - 1) << 8);
+        }
+        return result;
     },
     
     decode: function(code) {
-        throw new Error('Not implemented');
+        let result = new String();
+        let char1, char2, oldChar;
+        for (let i = 0; i < code.length; i++) {
+            oldChar = code.charCodeAt(i);
+            char2 = oldChar & 255;
+            char1 = oldChar >> 8;
+            result += String.fromCharCode(char1) + ((char2 == 0) ? '' : String.fromCharCode(char2));
+        }
+        return result;
     } 
 }
 
